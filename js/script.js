@@ -1,3 +1,7 @@
+'use strict';
+const transferRate = 100; // курс рублей к доллару
+const deadline = '2023-09-15'; //окончание акции в часовом поясе UTC
+
 window.addEventListener('DOMContentLoaded', () => {
   const tabs = document.querySelectorAll('.tabheader__item'),
     tabsContent = document.querySelectorAll('.tabcontent'),
@@ -33,7 +37,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const deadline = '2023-09-15'; // ХАРДКОД!!! полночь часовой пояс UTC !!!
   const promotionDeadline = document.querySelector('#promotion__deadline');
   promotionDeadline.textContent = ' ' + new Date(deadline).toLocaleDateString();
 
@@ -138,7 +141,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.title = title;
       this.descr = descr;
       this.price = price; // изначально в долларах
-      this.transfer = 100; // хардкод курс руб/доллару
+      this.transfer = transferRate;
       this.changePrice();
       this.parent = document.querySelector(parentSelector);
     }
@@ -211,17 +214,19 @@ window.addEventListener('DOMContentLoaded', () => {
       const r = new XMLHttpRequest();
       r.open('POST', 'server.php');
       r.setRequestHeader('Content-Type', 'application/json'); // для формата json
+      // а для FormData не требуется setRequestHeader, там оно само
       const formData = new FormData(form);
 
-      //преобразуем форму в json и отправляем в таком формате
+      //преобразуем форму в json для отправки в таком формате
       const obj = {};
       formData.forEach((value, key) => {
         obj[key] = value;
       });
       const json = JSON.stringify(obj);
-      r.send(json);
 
+      r.send(json);
       // r.send(formData);
+
       r.addEventListener('load', () => {
         if (r.status === 200) {
           console.log(r.response);
@@ -231,7 +236,7 @@ window.addEventListener('DOMContentLoaded', () => {
             statusMessage.remove();
           }, 2000);
         } else {
-          statusMessage.textContent = message.failure;
+                statusMessage.textContent = message.failure;
         }
       });
     });
