@@ -33,9 +33,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const deadline = '2023-10-01'; // ХАРДКОД!!! полночь часовой пояс UTC !!!
-  promotionDeadline = document.querySelector("#promotion__deadline");
-  promotionDeadline.textContent = " " + (new Date(deadline)).toLocaleDateString();
+  const deadline = '2023-09-15'; // ХАРДКОД!!! полночь часовой пояс UTC !!!
+  const promotionDeadline = document.querySelector('#promotion__deadline');
+  promotionDeadline.textContent = ' ' + new Date(deadline).toLocaleDateString();
 
   function getTimeRemaining(endtime) {
     const s1 = Date.parse(endtime) / 1000, //дедлайн в сек
@@ -218,11 +218,11 @@ window.addEventListener('DOMContentLoaded', () => {
       formData.forEach((value, key) => {
         obj[key] = value;
       });
-      json = JSON.stringify(obj);
+      const json = JSON.stringify(obj);
       r.send(json);
 
       // r.send(formData);
-      r.addEventListener('load', (e) => {
+      r.addEventListener('load', () => {
         if (r.status === 200) {
           console.log(r.response);
           statusMessage.textContent = message.success;
