@@ -101,39 +101,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   setClock('.timer', deadline);
 
-  //modal
-  const modalTrigger = document.querySelectorAll('[data-modal]'),
-    modal = document.querySelector('.modal'),
-    modalCloseBtn = document.querySelector('[data-close]');
-
-  modalTrigger.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      modal.classList.remove('hide');
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    });
-  });
-
-  function closeModal() {
-    modal.classList.remove('show');
-    modal.classList.add('hide');
-    document.body.style.overflow = '';
-  }
-
-  modalCloseBtn.addEventListener('click', closeModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target == modal) {
-      closeModal();
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.code == 'Escape' && modal.classList.contains('show')) {
-      closeModal();
-    }
-  });
-
   class MenuCard {
     constructor(src, alt, title, descr, price, parentSelector) {
       this.src = src;
@@ -192,11 +159,11 @@ window.addEventListener('DOMContentLoaded', () => {
     '.menu .container'
   ).render();
 
+
   const forms = document.querySelectorAll('form');
   const message = {
-    loading: 'Загрузка',
-    success: 'Спасибо!',
-    failure: 'Ошибка',
+    success: 'Спасибо! Данные отправлены успешно.',
+    failure: 'Что-то пошло не так (',
   };
 
   forms.forEach((item) => {
@@ -207,17 +174,11 @@ window.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const statusMessage = document.createElement('div');
-      statusMessage.textContent = message.loading;
-      form.append(statusMessage);
-
       const r = new XMLHttpRequest();
       r.open('POST', 'server.php');
       r.setRequestHeader('Content-Type', 'application/json'); // для формата json
-      // а для FormData не требуется setRequestHeader, там оно само
       const formData = new FormData(form);
 
-      //преобразуем форму в json для отправки в таком формате
       const obj = {};
       formData.forEach((value, key) => {
         obj[key] = value;
@@ -225,21 +186,77 @@ window.addEventListener('DOMContentLoaded', () => {
       const json = JSON.stringify(obj);
 
       r.send(json);
-      // r.send(formData);
 
       r.addEventListener('load', () => {
+        form.reset();
         if (r.status === 200) {
           console.log(r.response);
-          statusMessage.textContent = message.success;
-          form.reset();
-          setTimeout(() => {
-            statusMessage.remove();
-          }, 2000);
+          showThanksModal(message.success);
         } else {
-                statusMessage.textContent = message.failure;
+          showThanksModal(message.failure);
         }
       });
     });
+  }
+
+
+  //modal
+  const modalTrigger = document.querySelectorAll('[data-modal]'),
+    modal = document.querySelector('.modal');
+
+  modalTrigger.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      openModal();
+    });
+  });
+
+  function openModal() {
+    modal.classList.remove('hide');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('show');
+    modal.classList.add('hide');
+    document.body.style.overflow = '';
+  }
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal || e.target.getAttribute('data-close') === '') {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code == 'Escape' && modal.classList.contains('show')) {
+      closeModal();
+    }
+  });
+
+
+  function showThanksModal(message) {
+    const prevModalDialog = document.querySelector('.modal__dialog');
+    prevModalDialog.classList.add('hide');
+    openModal();
+
+    const thanksModal = document.createElement('div');
+    thanksModal.classList.add('modal__dialog');
+    thanksModal.innerHTML = `
+      <div class='modal__content'>
+        <div class="modal__close" data-close>&times;</div>
+        <div class="modal__title">${message}</div>
+      </div>
+    `;
+    document.querySelector(".modal").append(thanksModal);
+    setTimeout(() => {
+      thanksModal.remove();
+      prevModalDialog.classList.add('show');
+      prevModalDialog.classList.remove('hide');
+      closeModal();
+    }, 2000);
+      // если окно закрывается вручную то основная форма не успевает сразу вернутся, а только тут по таймеру 
+      
   }
 
   //end
