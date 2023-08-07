@@ -159,7 +159,6 @@ window.addEventListener('DOMContentLoaded', () => {
     '.menu .container'
   ).render();
 
-
   const forms = document.querySelectorAll('form');
   const message = {
     success: 'Спасибо! Данные отправлены успешно.',
@@ -174,31 +173,31 @@ window.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const r = new XMLHttpRequest();
-      r.open('POST', 'server.php');
-      r.setRequestHeader('Content-Type', 'application/json'); // для формата json
       const formData = new FormData(form);
-
       const obj = {};
       formData.forEach((value, key) => {
         obj[key] = value;
       });
-      const json = JSON.stringify(obj);
 
-      r.send(json);
-
-      r.addEventListener('load', () => {
-        form.reset();
-        if (r.status === 200) {
-          console.log(r.response);
+      fetch('server.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(obj),
+      })
+        .then((data) => {
+          console.log(data);
           showThanksModal(message.success);
-        } else {
+        })
+        .catch(() => {
           showThanksModal(message.failure);
-        }
-      });
+        })
+        .finally(() => {
+          form.reset();
+        });
     });
-  }
-
+  } // postData
 
   //modal
   const modalTrigger = document.querySelectorAll('[data-modal]'),
@@ -234,7 +233,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
   function showThanksModal(message) {
     const prevModalDialog = document.querySelector('.modal__dialog');
     prevModalDialog.classList.add('hide');
@@ -248,16 +246,19 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal__title">${message}</div>
       </div>
     `;
-    document.querySelector(".modal").append(thanksModal);
+    document.querySelector('.modal').append(thanksModal);
     setTimeout(() => {
       thanksModal.remove();
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
       closeModal();
     }, 2000);
-      // если окно закрывается вручную то основная форма не успевает сразу вернутся, а только тут по таймеру 
-      
+    // если окно закрывается вручную то основная форма не успевает сразу вернутся, а только тут по таймеру
   }
+
+  fetch('http://localhost:3000/menu')
+  .then(data => data.json())
+  .then(res => console.log(res.menu));
 
   //end
 });
