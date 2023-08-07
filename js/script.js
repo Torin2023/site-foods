@@ -134,30 +134,20 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  new MenuCard(
-    'img/tabs/vegy.jpg',
-    'vegy',
-    'Меню "Фитнес"',
-    'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-    9,
-    '.menu .container'
-  ).render();
-  new MenuCard(
-    'img/tabs/elite.jpg',
-    'elite',
-    'Меню “Премиум”',
-    'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-    30,
-    '.menu .container'
-  ).render();
-  new MenuCard(
-    'img/tabs/post.jpg',
-    'post',
-    'Меню "Постное"',
-    'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-    15,
-    '.menu .container'
-  ).render();
+  const getRes = async (url) => {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`ERROR fetch ${url} status ${res.status}`);
+    }
+    return await res.json();
+  };
+
+  getRes('http://localhost:3000/menu')
+  .then(data => {
+    data.forEach(({img, altimg, title, descr, price}) => {
+      new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    });
+  });
 
   const forms = document.querySelectorAll('form');
   const message = {
@@ -166,29 +156,32 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   forms.forEach((item) => {
-    postData(item);
+    bindPostData(item);
   });
 
-  function postData(form) {
+  function bindPostData(form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const formData = new FormData(form);
-      const obj = {};
-      formData.forEach((value, key) => {
-        obj[key] = value;
-      });
+      const postData = async (url, data) => {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: data,
+        });
+        return await res.json();
+      };
 
-      fetch('server.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(obj),
-      })
-        .then((data) => {
+      const formData = new FormData(form);
+      const json = JSON.stringify(Object.fromEntries(formData.entries()));
+
+      postData('http://localhost:3000/requests', json)
+        .then(data => {
           console.log(data);
           showThanksModal(message.success);
+          // statusMessage.remove();
         })
         .catch(() => {
           showThanksModal(message.failure);
@@ -197,7 +190,7 @@ window.addEventListener('DOMContentLoaded', () => {
           form.reset();
         });
     });
-  } // postData
+  } // bindPostData
 
   //modal
   const modalTrigger = document.querySelectorAll('[data-modal]'),
@@ -252,13 +245,9 @@ window.addEventListener('DOMContentLoaded', () => {
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
       closeModal();
-    }, 2000);
-    // если окно закрывается вручную то основная форма не успевает сразу вернутся, а только тут по таймеру
+    }, 4000);
+    
   }
-
-  fetch('http://localhost:3000/menu')
-  .then(data => data.json())
-  .then(res => console.log(res.menu));
 
   //end
 });
