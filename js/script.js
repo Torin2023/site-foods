@@ -245,8 +245,8 @@ window.addEventListener('DOMContentLoaded', () => {
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
       closeModal();
-    }, 4000);
-    
+    },4000);
+    // debugger;
   }
 
   //end
