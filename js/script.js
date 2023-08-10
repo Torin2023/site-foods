@@ -107,14 +107,8 @@ window.addEventListener('DOMContentLoaded', () => {
       this.alt = alt;
       this.title = title;
       this.descr = descr;
-      this.price = price; // изначально в долларах
-      this.transfer = transferRate;
-      this.changePrice();
+      this.price = price * transferRate; // изначально в долларах
       this.parent = document.querySelector(parentSelector);
-    }
-
-    changePrice() {
-      this.price *= this.transfer; // конвертация
     }
 
     render() {
@@ -137,15 +131,21 @@ window.addEventListener('DOMContentLoaded', () => {
   const getRes = async (url) => {
     const res = await fetch(url);
     if (!res.ok) {
-      throw new Error(`ERROR fetch ${url} status ${res.status}`);
+      throw new Error(`ERROR GET fetch ${url} status ${res.status}`);
     }
     return await res.json();
   };
 
-  getRes('http://localhost:3000/menu')
-  .then(data => {
-    data.forEach(({img, altimg, title, descr, price}) => {
-      new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+  getRes('http://localhost:3000/menu').then((data) => {
+    data.forEach(({ img, altimg, title, descr, price }) => {
+      new MenuCard(
+        img,
+        altimg,
+        title,
+        descr,
+        price,
+        '.menu .container'
+      ).render();
     });
   });
 
@@ -171,6 +171,9 @@ window.addEventListener('DOMContentLoaded', () => {
           },
           body: data,
         });
+        if (!res.ok) {
+          throw new Error(`ERROR POST fetch ${url} status ${res.status}`);
+        }
         return await res.json();
       };
 
@@ -178,7 +181,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
       postData('http://localhost:3000/requests', json)
-        .then(data => {
+        .then((data) => {
           console.log(data);
           showThanksModal(message.success);
           // statusMessage.remove();
@@ -245,9 +248,100 @@ window.addEventListener('DOMContentLoaded', () => {
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
       closeModal();
-    },4000);
-    // debugger;
+    }, 4000);
   }
 
-  //end
+  // slider
+  const slides = document.querySelectorAll('.offer__slide'),
+    prev = document.querySelector('.offer__slider-prev'),
+    next = document.querySelector('.offer__slider-next'),
+    total = document.querySelector('#total'),
+    current = document.querySelector('#current');
+
+  let slideIndex = 1;
+
+  if (slides.length < 10) total.textContent = `0${slides.length}`;
+  else total.textContent = `${slides.length}`;
+
+  showSlide(slideIndex);
+  prev.addEventListener('click', () => showSlide(--slideIndex));
+  next.addEventListener('click', () => showSlide(++slideIndex));
+
+  function showSlide(n) {
+    if (n < 1) slideIndex = slides.length;
+    if (n > slides.length) slideIndex = 1;
+    slides.forEach((slide) => (slide.style.display = 'none'));
+    slides[slideIndex - 1].style.display = 'block';
+    if (slideIndex < 10) current.textContent = `0${slideIndex}`;
+    else current.textContent = `${slideIndex}`;
+  }
+
+  // Calc
+  const result = document.querySelector('.calculating__result span');
+  let height,
+    weight,
+    age,
+    sex = document.querySelector('#gender .calculating__choose-item_active').id,
+    ratio = +document
+      .querySelector(
+        '.calculating__choose_big .calculating__choose-item_active'
+      )
+      .getAttribute('data-ratio');
+
+  function calcTotal() {
+    if (sex == 'female')
+      result.textContent = Math.floor(
+        ratio * (447 + weight * 9 + height * 3 - age * 4)
+      );
+    else
+      result.textContent = Math.floor(
+        ratio * (88 + weight * 13 + height * 5 - age * 6)
+      );
+    console.log('result ', result.textContent);
+    if (result.textContent == 'NaN') result.textContent = '____';
+  }
+  calcTotal();
+
+  function getStaticInfo(parentSelector) {
+    const elements = document.querySelectorAll(`${parentSelector} div`);
+    elements.forEach((elem) => {
+      elem.addEventListener('click', (e) => {
+        if (e.target.getAttribute('data-ratio')) {
+          ratio = +e.target.getAttribute('data-ratio');
+        } else {
+          sex = e.target.getAttribute('id');
+        }
+        elements.forEach((el) => {
+          el.classList.remove('calculating__choose-item_active');
+        });
+        e.target.classList.add('calculating__choose-item_active');
+        calcTotal();
+      });
+    });
+  }
+  getStaticInfo('.calculating__choose_big');
+  getStaticInfo('#gender');
+
+  function getDynamicInfo(selector) {
+    const input = document.querySelector(selector);
+    input.addEventListener('input', () => {
+      switch (input.getAttribute('id')) {
+        case 'height':
+          height = +input.value;
+          break;
+        case 'weight':
+          weight = +input.value;
+          break;
+        case 'age':
+          age = +input.value;
+          break;
+      }
+      calcTotal();
+    });
+  }
+  getDynamicInfo('#height');
+  getDynamicInfo('#weight');
+  getDynamicInfo('#age');
+
+  // --------- end ---------
 });
