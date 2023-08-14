@@ -1,5 +1,4 @@
-export default function cards() {
-  const transferRate = 100; // курс рублей к доллару
+export default function cards(transferRate) {
 
   class MenuCard {
     constructor(src, alt, title, descr, price, parentSelector) {
@@ -7,7 +6,7 @@ export default function cards() {
       this.alt = alt;
       this.title = title;
       this.descr = descr;
-      this.price = price * transferRate; // изначально в долларах
+      this.price = price * +transferRate; // изначально в долларах
       this.parent = document.querySelector(parentSelector);
     }
 

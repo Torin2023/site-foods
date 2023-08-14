@@ -96,8 +96,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ cards)
 /* harmony export */ });
-function cards() {
-  const transferRate = 100; // курс рублей к доллару
+function cards(transferRate) {
 
   class MenuCard {
     constructor(src, alt, title, descr, price, parentSelector) {
@@ -105,7 +104,7 @@ function cards() {
       this.alt = alt;
       this.title = title;
       this.descr = descr;
-      this.price = price * transferRate; // изначально в долларах
+      this.price = price * +transferRate; // изначально в долларах
       this.parent = document.querySelector(parentSelector);
     }
 
@@ -372,9 +371,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ timer)
 /* harmony export */ });
-function timer() {
-  const deadline = '2023-09-15'; //окончание акции в часовом поясе UTC
-
+function timer(deadline) {
+  
   const promotionDeadline = document.querySelector('#promotion__deadline');
   promotionDeadline.textContent = ' ' + new Date(deadline).toLocaleDateString();
 
@@ -521,8 +519,8 @@ __webpack_require__.r(__webpack_exports__);
 
 window.addEventListener('DOMContentLoaded', () => {
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_0__["default"])();
-  (0,_modules_timer__WEBPACK_IMPORTED_MODULE_1__["default"])();
-  (0,_modules_cards__WEBPACK_IMPORTED_MODULE_2__["default"])();
+  (0,_modules_timer__WEBPACK_IMPORTED_MODULE_1__["default"])('2023-09-14'); //окончание акции в часовом поясе UTC
+  (0,_modules_cards__WEBPACK_IMPORTED_MODULE_2__["default"])(101); // курс рублей к доллару
   (0,_modules_slider__WEBPACK_IMPORTED_MODULE_3__["default"])();
   (0,_modules_calc__WEBPACK_IMPORTED_MODULE_4__["default"])();
   (0,_modules_forms__WEBPACK_IMPORTED_MODULE_5__["default"])();

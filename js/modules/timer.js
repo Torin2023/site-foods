@@ -1,6 +1,5 @@
-export default function timer() {
-  const deadline = '2023-09-15'; //окончание акции в часовом поясе UTC
-
+export default function timer(deadline) {
+  
   const promotionDeadline = document.querySelector('#promotion__deadline');
   promotionDeadline.textContent = ' ' + new Date(deadline).toLocaleDateString();
 

@@ -7,8 +7,8 @@ import forms from './modules/forms';
 
 window.addEventListener('DOMContentLoaded', () => {
   tabs();
-  timer();
-  cards();
+  timer('2023-09-14'); //окончание акции в часовом поясе UTC
+  cards(101); // курс рублей к доллару
   slider();
   calc();
   forms();
