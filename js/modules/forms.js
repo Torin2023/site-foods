@@ -1,3 +1,4 @@
+import site from './site';
 export default function forms() {
 
   // modal
@@ -91,7 +92,7 @@ export default function forms() {
       const formData = new FormData(form);
       const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-      postData('http://localhost:3000/requests', json)
+      postData(site() + 'requests', json) //!!!
         .then((data) => {
           console.log(data);
           showThanksModal(message.success);

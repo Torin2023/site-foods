@@ -1,5 +1,5 @@
+import site from './site';
 export default function cards(transferRate) {
-
   class MenuCard {
     constructor(src, alt, title, descr, price, parentSelector) {
       this.src = src;
@@ -35,7 +35,7 @@ export default function cards(transferRate) {
     return await res.json();
   };
 
-  getRes('http://localhost:3000/menu').then((data) => {
+  getRes(site() + 'menu').then((data) => { //!!!
     data.forEach(({ img, altimg, title, descr, price }) => {
       new MenuCard(
         img,
